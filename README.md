@@ -3,5 +3,5 @@
 
 + [Proyecto Final PDF](ProyectoFinal_AimarJaso.pdf)
 + [Informe Técnico](InformeTécnico_AimarJaso.pdf)
-+ [Código Informe Técnico en LaTeX](InformeTécnico_AimarJaso.tex)
++ [Informe Técnico en LaTeX](InformeTécnico_AimarJaso.tex)
 + [Scripts](scripts)
