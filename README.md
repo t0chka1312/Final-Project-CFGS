@@ -5,6 +5,7 @@ Trabajo de final de grado superior de ASIR realizado en el CI María Ana Sanz. E
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![LaTeX](https://img.shields.io/badge/LaTeX-008080?style=for-the-badge&logo=latex&logoColor=white)
 ![Bash](https://img.shields.io/badge/Bash-4EAA25?style=for-the-badge&logo=gnu-bash&logoColor=white)
+![Security](https://img.shields.io/badge/Security-1f2a4c?style=for-the-badge&logo=security&logoColor=white)
 + [Proyecto Final PDF](ProyectoFinal_AimarJaso.pdf)
 + [Informe Técnico](InformeTécnico_AimarJaso.pdf)
 + [Informe Técnico en LaTeX](InformeTécnico_AimarJaso.tex)
