@@ -3,4 +3,4 @@
 # Seguridad Ofensiva by Aimar Jaso
 
 + [Proyecto Final PDF](ProyectoFinal_AimarJaso.pdf)
-+ 
++ [Informe Técnico](InformeTécnico_AimarJaso.pdf)
